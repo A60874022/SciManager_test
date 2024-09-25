@@ -1,5 +1,3 @@
-# endpoints.py
-
 from fastapi import APIRouter, Depends, WebSocket, WebSocketDisconnect
 from faststream.rabbit.fastapi import RabbitRouter
 from models import Message, User
@@ -8,6 +6,7 @@ from auth import get_current_user
 router = APIRouter()
 rabbit_router = RabbitRouter("amqp://guest:guest@localhost:5672/")
 rooms: dict[str, list[str]] = {}
+
 
 @router.post("/message/")
 async def post_message(message: Message, user: User = Depends(get_current_user)):
@@ -20,8 +19,11 @@ async def post_message(message: Message, user: User = Depends(get_current_user))
     await rabbit_router.publish(message.content, routing_key=message.room_id)
     return {"status": "Message sent"}
 
-@router.websocket('/updates/{room_id}')
-async def get_updates(websocket: WebSocket, room_id: str, user: User = Depends(get_current_user)):
+
+@router.websocket("/updates/{room_id}")
+async def get_updates(
+    websocket: WebSocket, room_id: str, user: User = Depends(get_current_user)
+):
     """
     Получение обновлений из указанной комнаты через WebSocket.
     """
@@ -31,4 +33,4 @@ async def get_updates(websocket: WebSocket, room_id: str, user: User = Depends(g
             message = await rabbit_router.consume(routing_key=room_id)
             await websocket.send_text(message)
     except WebSocketDisconnect:
-        print(f"Client disconnected from room: {room_id}")
+        print(f"Клиент не подсоединен к комнате: {room_id}")

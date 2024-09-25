@@ -1,5 +1,3 @@
-# app.py
-
 from fastapi import FastAPI
 from endpoints import router
 

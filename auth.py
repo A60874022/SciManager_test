@@ -1,21 +1,19 @@
-# auth.py
-
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from models import User
 
-# Константы
+
 fake_users_db = {
     "user1": {
         "username": "user1",
         "full_name": "User One",
-        "hashed_password": "fakehashedpassword1",  # Предположим, что это хэшированный пароль
+        "hashed_password": "fakehashedpassword1",
         "disabled": False,
     },
 }
 
-# OAuth2 схема
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
+
 
 async def get_current_user(token: str = Depends(oauth2_scheme)):
     """
